@@ -22,6 +22,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                             password_confirmation: "password" }
     end
     assert_template 'users/show'				# check users/show renders successful signup
+    assert is_logged_in?	# this fxn lives in test/test_helper.rb
   end
 
 end
