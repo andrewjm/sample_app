@@ -8,7 +8,7 @@ class SessionsController < ApplicationController
     if user && user.authenticate(params[:session][:password])	  # try authenticating by form pw
       log_in user		# log_in lives in app/helpers/sessions_helper.rb
       params[:session][:remember_me] == '1' ? remember(user) : forget(user) # remember is permanent cookie
-      redirect_to user		# rails converts user to user_url(user)
+      redirect_back_or user                     # executes friendly forwarding or redirect to default
     else
       flash.now[:danger] = 'Invalid email/password combination' # flash error message on invalid login
 								# flash.now disappears on any new request
