@@ -11,7 +11,9 @@ User.create!(name:  "Example User",			# create one admin user
              email: "example@railstutorial.org",
              password:              "foobar",
              password_confirmation: "foobar",
-	     admin: true)
+	     admin: true,
+             activated: true,
+             activated_at: Time.zone.now)
 
 99.times do |n|						# do the following 99 times
   name  = Faker::Name.name				# faker gem defines the name
@@ -20,5 +22,7 @@ User.create!(name:  "Example User",			# create one admin user
   User.create!(name:  name,				# create the user
                email: email,
                password:              password,
-               password_confirmation: password)
+               password_confirmation: password,
+               activated: true,
+               activated_at: Time.zone.now)
 end
