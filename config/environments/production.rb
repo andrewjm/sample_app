@@ -80,7 +80,7 @@ Rails.application.configure do
   # SMTP settings to send email
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
-  host = '<pacific-ridge-6969>.herokuapp.com'
+  host = 'pacific-ridge-6969.herokuapp.com'
   config.action_mailer.default_url_options = { host: host }
   ActionMailer::Base.smtp_settings = {
     :address        => 'smtp.sendgrid.net',
