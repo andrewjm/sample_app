@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
 
+  get 'password_resets/new'
+
+  get 'password_resets/edit'
+
   get 'sessions/new'
 
   # You can have the root of your site routed with "root"
@@ -12,7 +16,8 @@ Rails.application.routes.draw do
   post   'login'   => 'sessions#create'
   delete 'logout'  => 'sessions#destroy'
   resources :users
-  resources :account_activations, only: [:edit]		# account activation resources
+  resources :account_activations, only: [:edit]				# account activation resources
+  resources :password_resets,     only: [:new, :create, :edit, :update]	# password reset resources
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
