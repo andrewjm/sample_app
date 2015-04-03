@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  has_many :microposts, dependent: :destroy			# one to many, user to posts
+								# post dep on user, no user no posts
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
@@ -93,6 +95,12 @@ class User < ActiveRecord::Base
   def password_reset_expired?
     reset_sent_at < 2.hours.ago		# check if reset was sent more than 2 hours ago
   end					# seems opposite, but consider Unix Time as represented as an ing
+
+  # Defines a proto-feed.
+  # See "Following users" for the full implementation.
+  def feed
+    Micropost.where("user_id = ?", id)	# ? escapes the SQL query
+  end
 
   private
 

@@ -26,3 +26,9 @@ User.create!(name:  "Example User",			# create one admin user
                activated: true,
                activated_at: Time.zone.now)
 end
+
+users = User.order(:created_at).take(6)			# take the 6 oldest users (the first 6 created)
+50.times do						# make 50 microposts for each of them
+  content = Faker::Lorem.sentence(5)
+  users.each { |user| user.microposts.create!(content: content) }
+end

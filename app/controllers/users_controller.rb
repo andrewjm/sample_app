@@ -13,6 +13,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])	# pass the id parameter to find()
+    @microposts = @user.microposts.paginate(page: params[:page])	# paginate user microposts
   end
 
   def new
@@ -65,15 +66,6 @@ class UsersController < ApplicationController
 
     ##
     ## Before Filters 
-
-    # Confirms a logged-in user.
-    def logged_in_user
-      unless logged_in?				# check if logged in
-        store_location				# store get request url into hash for friendly forwarding
-        flash[:danger] = "Please log in."	# set flash value
-        redirect_to login_url			# redirect to login page
-      end
-    end
 
     # Confirms the correct user.
     def correct_user
