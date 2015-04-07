@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   # run logged_in_user before running actions index, edit, update, or destroy
-  before_action :logged_in_user, only: [:index, :edit, :update, :destroy]
+  before_action :logged_in_user, only: [:index, :edit, :update, :destroy, :following, :followers] 
   before_action :correct_user, only: [:edit, :update]	# before running method edit OR update, run
 							# correct_user
   before_action :admin_user, only: [:destroy]		# only admins may run action destroy
@@ -52,6 +52,20 @@ class UsersController < ApplicationController
     User.find(params[:id]).destroy	# find and delete user
     flash[:success] = "User deleted"	# set flash
     redirect_to users_url
+  end
+
+  def following
+    @title = "Following"					# set a title
+    @user  = User.find(params[:id])				# get user id
+    @users = @user.following.paginate(page: params[:page])	# paginated users
+    render 'show_follow'					# show follow page
+  end
+
+  def followers
+    @title = "Followers"					# set a title
+    @user  = User.find(params[:id])				# get user id
+    @users = @user.followers.paginate(page: params[:page])	# paginated users
+    render 'show_follow'					# show follow page
   end
 
   private

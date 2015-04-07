@@ -1,0 +1,18 @@
+<% # if @user do nothing, else set to current_user %>
+<% @user ||= current_user %>
+<div class="stats">
+  <a href="<%= following_user_path(@user) %>">
+    <strong id="following" class="stat">
+      <% # grab number of following %>
+      <%= @user.following.count %>
+    </strong>
+    following
+  </a>
+  <a href="<%= followers_user_path(@user) %>">
+    <strong id="followers" class="stat">
+      <% # grab number of followers %>
+      <%= @user.followers.count %>
+    </strong>
+    followers
+  </a>
+</div>

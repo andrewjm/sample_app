@@ -32,3 +32,11 @@ users = User.order(:created_at).take(6)			# take the 6 oldest users (the first 6
   content = Faker::Lorem.sentence(5)
   users.each { |user| user.microposts.create!(content: content) }
 end
+
+# Following relationships
+users = User.all					# greab all users
+user  = users.first					# great first user
+following = users[2..50]				# array of users 2-50 named 'following'
+followers = users[3..40]				# array of users 3-40 names 'followers'
+following.each { |followed| user.follow(followed) }	# set first user to follow users 2-50
+followers.each { |follower| follower.follow(user) }	# set users 3-40 to follow first user

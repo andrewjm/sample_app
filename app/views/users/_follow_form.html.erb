@@ -1,0 +1,11 @@
+<% # unless a logged in user is currently looking at her own profile, render the following.. %>
+<% unless current_user?(@user) %>
+  <div id="follow_form">
+  <% # if the logged in user is following the user this profile belongs to.. %>
+  <% if current_user.following?(@user) %>
+    <%= render 'unfollow' %>
+  <% else %>
+    <%= render 'follow' %>
+  <% end %>
+  </div>
+<% end %>
