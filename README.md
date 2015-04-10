@@ -1,6 +1,8 @@
-ample Application
+# Sample Application
 
-A sample Twitter application from Michael Hartl's [Ruby on Rails Tutorial Book](https://www.railstutorial.org/book).
+A sample Twitter application assembled by following Michael Hartl's [Ruby on Rails Tutorial Book](https://www.railstutorial.org/book).
+
+A live production ready instance is [available here](https://pacific-ridge-6969.herokuapp.com). Admin login credentials are as follows, id : pw :: example@railstutorial.org : foobar
 
 ## Purpose
 
@@ -39,7 +41,10 @@ Seed the database with dummy data (optional)
   * Email Confirmation
   * Password Reset
 * Microposts with images
+  * Images stored via Amazon S3
 * Ability to follow and unfollow other users
+* Twitter Bootstrap UI
+* Pagination
 
 ## Directory Structure
 

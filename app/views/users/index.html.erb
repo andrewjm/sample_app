@@ -5,13 +5,11 @@
 <%= will_paginate %>
 
 <ul class="users">
-  <% # iterate through all users provided by @users and display in the ul tag  %>
-  <% @users.each do |user| %>
-    <% # render each user delivered from paginate method.
-       # formatted from  the _user.html.erb partial.
-       # calling @users instance var insteas of 'users' tell Rails they are objects %>
-    <%= render @users %>
-  <% end %>
+  <% # Rails does a few things here:
+     #   1. Infers that @users is a list of User objects
+     #   2. Iterates over each object (returned by will_paginate, to 30)
+     #   3. Renders each object with the _user.html.erb partial  %>
+  <%= render @users %>
 </ul>
 
 <% # pagination styling here too  %>
