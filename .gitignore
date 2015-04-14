@@ -15,3 +15,6 @@
 /log/*
 !/log/.keep
 /tmp
+
+# Ignore AWS S3 creds file
+/notes/s3.txt

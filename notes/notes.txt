@@ -1,0 +1,1744 @@
+####			####
+####			####
+####     Chapter 1	####
+####			####
+####			####
+
+##
+## Building a simple Hello World App
+
+
+##
+## Create new rails app with specific rails version
+
+rails _4.2.0_ new hello_app
+
+
+##
+## rails runs 'bundle install' itself, but we need to 
+## make some changes to the Gemfile and rerun it
+
+cd hello_app
+
+vi Gemfile
+
+
+##
+## update Gemfile to look just like 'Listing 1.5' in the
+## book. The exact is:
+
+source 'https://rubygems.org'
+
+gem 'rails',                '4.2.0'
+gem 'sass-rails',           '5.0.1'
+gem 'uglifier',             '2.5.3'
+gem 'coffee-rails',         '4.1.0'
+gem 'jquery-rails',         '4.0.3'
+gem 'turbolinks',           '2.3.0'
+gem 'jbuilder',             '2.2.3'
+gem 'sdoc',                 '0.4.0', group: :doc
+
+group :development, :test do
+  gem 'sqlite3',     '1.3.9'
+  gem 'byebug',      '3.4.0'
+  gem 'web-console', '2.0.0.beta3'
+  gem 'spring',      '1.1.3'
+end
+
+
+##
+## install new gems
+
+bundle install
+
+
+##
+## start the app
+
+rails server
+
+
+##
+## we will be making the root directory return 'hello world'
+## in the app. first edit the application controller
+
+vi app/controllers/application_controller.rb
+
+
+##
+## define an action that returns a string:
+
+def hello
+  render text: "hello world!"
+end
+
+
+##
+## change the root route
+
+vi config/routes.rb
+
+
+##
+## add the following:
+
+root 'application#hello'
+
+
+##
+## version control the app in git
+
+git init
+git add -A
+git commit -m 'initialize repo'
+
+##
+## The book here recommends using BitBucket for hosting
+## the git repo. I am choosing to stick with the previ-
+## ous version and use GitHub
+
+##
+## Git push to GitHub after creating repo in GitHub
+
+git remote add origin https://github.com/<username>/<app_name>.git
+git push -u origin master
+
+
+##
+## Git: Branch, Edit, Commit, Merge workflow
+
+git branch				#list all branches
+git checkout -b branch_name_here	#create new branch and move to it
+git add .				#add all files to staging
+git commit -a -m ‘message here’		#commit changes
+git checkout master			#move back to master branch
+git merge branch_name_here		#merge new branch into master branch
+git branch -d branch_name_here		#delete new branch if done with it
+git branch -D branch_name_here		#delete an unmerged branch
+
+
+##
+## Add gems to prepare the app for Heroku hosting.
+## Add the following to the Gemfile:
+
+group :production do
+  gem 'pg',             '0.17.1'
+  gem 'rails_12factor', '0.0.2'
+end
+
+
+##
+## Install gems while retaining local dev environment
+
+bundle install --without production
+
+
+##
+## Deploy to Heroku
+
+heroku version		#check if installed
+heroku login
+heroku keys:add		#add SSH key if needed
+heroku create		#create space on servers for the app
+git push heroku master
+heroku open
+
+
+
+
+####			####
+####			####
+####     Chapter 2	####
+####			####
+####			####
+
+##
+## Building a simple 'Toy App' using scaffold generators
+
+rails _4.2.0_ new toy_app
+
+
+##
+## Update Gemfile to reflect:
+
+source 'https://rubygems.org'
+
+gem 'rails',        '4.2.0'
+gem 'sass-rails',   '5.0.1'
+gem 'uglifier',     '2.5.3'
+gem 'coffee-rails', '4.1.0'
+gem 'jquery-rails', '4.0.3'
+gem 'turbolinks',   '2.3.0'
+gem 'jbuilder',     '2.2.3'
+gem 'sdoc',         '0.4.0', group: :doc
+
+group :development, :test do
+  gem 'sqlite3',     '1.3.9'
+  gem 'byebug',      '3.4.0'
+  gem 'web-console', '2.0.0.beta3'
+  gem 'spring',      '1.1.3'
+end
+
+group :production do
+  gem 'pg',             '0.17.1'
+  gem 'rails_12factor', '0.0.2'
+end
+
+
+##
+## Bundle install locally
+
+bundle install --without production
+
+
+##
+## Git
+
+git init
+git add -A
+git commit -m "Initialize repository"
+git remote add origin https://github.com/<username>/toy_app.git
+git push -u origin --all #pushes up the repo and its refs for the first time
+
+
+##
+## Deploy to Heroku
+
+heroku version		#check if installed
+heroku login
+heroku keys:add		#add SSH key if needed
+heroku create		#create space on servers for the app
+git push heroku master
+heroku open
+
+
+##
+## Use scaffold to generate a user data model. Each user will have a model
+## as such:
+
+_________________________
+|			|
+|	  USERS		|
+|_______________________|
+|	|		|
+| id	| integer	|
+|_______|_______________|
+|	|		|
+| name	| string	|
+|_______|_______________|
+|	|		|
+| email	| string	|
+|_______|_______________|
+
+
+
+##
+## It appears the id field is automatically created. the scaffold command
+## is as such:
+
+rails generate scaffold User name:string email:string
+
+
+##
+## Migrate, or update, DB
+
+bundle exec rake db:migrate 	#use bundle exec to ensure rake corresponds				
+				#to the proper Gemfile
+
+##
+## REST is short for Representational State Transfer and it describes
+## an architecture style for developing distributed, networked systems.
+## It corresponds with CRUD operations of Relational Databases as well
+## as the four fundamental HTTP Request Methods: POST, GET, PATCH, DELETE
+
+
+##
+## The scaffold creates models, controllers, views, and routes. Navigate
+## to /users to see the first one.
+
+
+##
+## Generate micropost
+
+rails generate scaffold Micropost content:text user_id:integer
+
+
+##
+## Limit micropost length to 140 characters. Add the following within
+## app/models/micropost.rb
+
+validates :content, length: { maximum: 140 }
+
+
+##
+## Form associations between the users and microposts. This relies on
+## Active Record. Add the following:
+
+has_many :microposts		#in app/models/user.rb
+belongs_to :user		#in app/models/micropost.rb
+
+
+##
+## Using rails console we can examine these associations:
+
+rails console
+
+first_user = User.first
+
+first_user.microposts
+
+micropost = first_user.microposts.first
+
+micropost.user
+
+exit
+
+
+##
+## Inheritance syntax in the model files. In the example below the User
+## class is inheriting the Base class from ActiveRecord
+
+class User < ActiveRecord::Base		# app/models/user.rb
+
+
+##
+## Inheritance syntax in controller files. In the example below both the
+## UsersController and MicropostsController inherit from the
+## ApplicationController, which itself inherits the Base class from
+## ActionController:
+
+# app/controllers/users_controller.rb
+class UsersController < ApplicationController
+
+# app/controllers/microposts_controller.rb
+class MicropostsController < ApplicationController
+
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController:Base	
+
+
+##
+## Push to GitHub
+
+git commit -a -m 'finishing toy app'
+git push origin master
+
+
+##
+## Push to Heroku and migrate db on prod server
+
+git push heroku master
+heroku run rake db:migrate
+
+
+
+
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****					****	****	****
+****	****	****         SAMPLE APP BEGINS!         ****	****	****
+****	****	****					****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+****	****	****	****	****	****	****	****	****	****
+
+
+
+
+####			####
+####			####
+####     Chapter 3	####
+####			####
+####			####
+
+##
+##  CREATING STATIC PAGES
+##
+
+##
+## Setup the sample_app
+
+rails _4.2.0_ new sample_app
+
+
+##
+## Update Gemfile to:
+
+source 'https://rubygems.org'
+
+gem 'rails',                '4.2.0'
+gem 'sass-rails',           '5.0.1'
+gem 'uglifier',             '2.5.3'
+gem 'coffee-rails',         '4.1.0'
+gem 'jquery-rails',         '4.0.3'
+gem 'turbolinks',           '2.3.0'
+gem 'jbuilder',             '2.2.3'
+gem 'sdoc',                 '0.4.0', group: :doc
+
+group :development, :test do
+  gem 'sqlite3',     '1.3.9'
+  gem 'byebug',      '3.4.0'
+  gem 'web-console', '2.0.0.beta3'
+  gem 'spring',      '1.1.3'
+end
+
+group :test do
+  gem 'minitest-reporters', '1.0.5'
+  gem 'mini_backtrace',     '0.1.3'
+  gem 'guard-minitest',     '2.3.1'
+end
+
+group :production do
+  gem 'pg',             '0.17.1'
+  gem 'rails_12factor', '0.0.2'
+end
+
+
+##
+## Install Gems for local dev
+
+bundle install --without production
+
+bundle update	# ensure gem versions match
+
+
+##
+## Initialize Git repo
+
+git init
+git add -A
+git commit -m "Initialize repository"
+git mv README.rdoc README.md
+git remote add origin https://github.com/<username>/sample_app.git
+git push -u origin --all #pushes up the repo and its refs for the first time
+
+
+##
+## Heroku
+
+heroku create
+git push heroku master
+heroku logs
+
+
+##
+## Creating rails actions and views containing only static content.
+## actions come bundled together inside controllers
+
+
+##
+## generate static page controllers for 'home' and 'help' pages
+## We use CamelCase (StaticPages), which yields controller file
+## in snake_case (static_pages), but using snake_case in the 
+## command also works.
+##
+## This generates controllers, and views, and updates routes
+
+rails generate controller StaticPages home help
+
+  #or
+
+rails g controller StaticPages home help
+
+
+##
+## Other Rails shortcuts
+
+rails s		# rails server
+
+rails c		# rails console
+
+rails g 	# rails generate
+
+bundle		# bundle install
+
+rake		# rake test
+
+
+##
+## Push to Git
+
+git add -A
+git commit -m 'adding static page controllers'
+git push -u origin static-pages
+
+
+##
+## Rails destroy will undo rails generate. We can also undo db migration
+## We won't do that here but just take note of the option
+
+rails destroy controller StaticPages home help
+rails destroy model User
+
+  #or
+
+bundle exec rake db:rollback
+bundle exec rake db:migrate VERSION=0
+
+
+##
+## Testing
+##
+## Protects against regressions, allows for easier refactoring
+## and acts as a client to the application. Generally we'll write
+## controller and model tests first, then integration tests (which
+## test functionality across models, views, and controllers) second.
+
+##
+## Execute tests
+
+bundle exec rake test
+
+
+##
+## Add test for about in app/test/controllers/static_pages_controller_test.rb
+
+test "should get about" do
+  get :about
+  assert_response :success
+end
+
+
+##
+## Red, Green, Refactor
+
+bundle exec rake test		# run the test
+"No route matches"		# the err msg
+get 'static_pages/about'	# add to config/routes.rb
+
+bundle exec rake test			# run the test
+"The action 'about' could not be found	# the err msg
+for StaticPagesController"
+def about				# add to app/controllers/static...
+end
+
+bundle exec rake test				# run the test
+Missing template static_pages/about		# the err msg
+touch app/views/static_pages/about.html.erb	# create a file for template
+
+bundle exec rake test					# run the test
+3 runs, 3 assertions, 0 failures, 0 errors, 0 skips	# we passed!
+
+
+##
+## Were going to create our own layout file after disabling the default
+## Add a test for each dynamic title. For example:
+
+assert_select "title", "Home | Ruby on Rails Tutorial Sample App"
+
+
+##
+## Some embedded ruby (erb) syntax
+
+<% ... %>	# executes the code inside
+
+<%= ... %>	# executes the code and inserts the result into the template
+
+
+##
+## Replace current <title> with dynamic title
+## app/views/layouts/application.html.erb
+
+<title><%= yield(:title) %> | RoR Tut</title>
+
+
+##
+## In each view provide the title name at the top:
+
+<% provide(:title, 'title_name') %>
+
+
+##
+## test
+
+bundle exec rake test	# we pass!
+
+
+##
+## Set root to the homepage, edit config/routes.rb
+
+root 'static_pages#home'
+
+
+##
+## Wrap up with Git and Heroku
+
+git add -A
+git commit -m 'finish static pages'
+git checkout master
+git merge static-pages
+git push origin master
+
+bundle exec rake test
+
+git push heroku master
+
+
+##
+## Add colors to the test results by adding this
+## bit to test/test_helper.rb
+
+require "minitest/reporters"
+Minitest::Reporters.use!
+
+
+##
+## Automate tests with Guard
+## interesting discussion at 3.7.3
+## I did not implement this
+
+
+
+####			####
+####			####
+####     Chapter 4	####
+####			####
+####			####
+
+##
+## Introduction to Rails flavored Ruby
+
+
+##
+## Define a custom helper in app/helpers/application_helper.rb
+## to help with the page titles
+
+# Returns the full title on a per-page basis.
+def full_title(page_title = '')
+  base_title = "Ruby on Rails Tutorial Sample App"
+  if page_title.empty?
+    base_title
+  else
+    "#{page_title} | #{base_title}"
+  end
+end
+
+
+##
+## Replace <title> in app/views/layouts/application.html.erb with
+
+<title><%= full_title(yield(:title)) %></title>
+
+# remove the provide() line from app/views/static_pages/home.html.erb
+# to pass a bundle exec rake test
+
+
+##
+## Suppress some auto indent features in the rails console
+
+vi ~/.irbrc
+
+# add this code:
+
+IRB.conf[:PROMPT_MODE] = :SIMPLE
+IRB.conf[:AUTO_INDENT_MODE] = false
+
+# then open console
+
+rails console
+
+
+##
+## String interpolation
+
+>> first_name = "Michael"
+=> "Michael"
+>> last_name = "Hartl"
+=> "Hartl"
+>> first_name + " " + last_name    # Concatenation, with a space in between
+=> "Michael Hartl"
+>> "#{first_name} #{last_name}"    # The equivalent interpolation
+=> "Michael Hartl"
+
+# requires "double quotes", 'single quotes' do not allow interpolation
+
+##
+## Things to know in Ruby:
+
+# working with strings
+# method definitions
+# if else unless etc
+# data structures
+#   array  [  ]
+#   ranges ( ... )
+#   hashes { key: value, key: value }
+# blocks {  }
+# :symbols
+# @instance variables
+
+
+##
+## In app/views/layouts/application.html.erb the following line
+
+stylesheet_link_tag 'application', media: 'all',
+                                   'data-turbolinks-track' => true
+
+# is synonymous with
+
+stylesheet_link_tag( 'application', { media: 'all',
+				      'data-turbolinks-track' => true } )
+
+# () are optional on method calls, and {} are optional on hash calls
+# dashes '-' are illegal in symbol names, thus the rocket notation =>
+# is used for the second hash key:value
+
+
+##
+## Official reference documents
+
+http://www.ruby-doc.org/	# Ruby
+
+http://api.rubyonrails.org/	# Rails
+
+
+
+####			####
+####			####
+####     Chapter 5	####
+####			####
+####			####
+
+##
+## Filling in the Layout:
+##
+## css framework, partials, Rails routes, asset pipeline,
+## Sass, integration tests, Bootstrap
+
+
+git checkout -b layout		# Create a branch for this chapter
+
+# Update app/views/layouts/application.html.erb with more HTML
+# Notice no <a> tags are used, rather <%= link_to "", '' %> is used
+
+# HTML5shiv lets legacy browsers read some HTML5 tags like <!DOCTYPE html>
+
+# Update app/views/static_pages/home.html.erb with more HTML
+# Notice the image_tag helper
+
+##
+## Download the rails logo and move to proper dir
+
+curl -O http://rubyonrails.org/images/rails.png
+mv rails.png app/assets/images/
+
+##
+## Add the bootstrap gem to the Gemfile
+## bootstrap-sass converts native bootstrap less to sass
+## Rails supports sass natively
+
+gem 'bootstrap-sass',	'3.2.0.0'
+
+bundle install
+
+touch app/assets/stylesheets/custom.css.scss	# create custom css file
+
+##
+## include bootstrap tools in the custom css file
+
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+##
+## restart the server to incorporate these changes
+
+Ctrl-C
+rails s
+
+# add some css to app/assets/stylesheets/custom.css.scss
+
+##
+## Partials allow you to organize bits of code into separate files
+## to be rendered at specified lines within an ERB file.
+## Partials are named with the convention _name.html.erb
+
+<%= render 'layouts/partial-name' %>	# syntax to include a partial
+
+##
+## The Asset Pipeline manages static assets: css, js, imgs
+## There are three features to understand:
+##	asset directories
+##	manifest files
+##	preprocessor engines
+##
+## Official Doc: http://guides.rubyonrails.org/asset_pipeline.html
+
+##
+## Asset Directories
+
+app/assets	# assets specific to the present application
+lib/assets	# assets for libraries written by your dev team
+vendor/assets	# assets from third-party vendors
+
+##
+## Manifest Files
+
+# they allow you to define which assets are combined into a final
+# asset on delivery to the client, and in what order they are combined
+
+app/assets/stylesheets/application.css	# is a manifest file
+
+##
+## Preprocessor Engines
+
+# you can define which engines to run a file through via extensions
+
+file.css.scss		# SASS, compiles into CSS
+file.js.coffee		# coffee script, compiles into javascript
+file.html.erb		# embedded ruby, compiles into html
+file.js.erb.coffee	# runs through coffee script first, then embedded ruby
+			# then js
+
+##
+## SASS: Syntactically awesome stylesheets
+## nesting and variables
+
+## Nesting:
+
+.center {
+  text-align: center;
+}
+
+.center h1 {
+  margin-bottom: 10px;
+}
+
+# can be replaced with:
+
+.center {
+  text-align: center;
+  h1 {
+    margin-bottom: 10px;
+  }
+}
+
+## Variables:
+
+$variable-name: <value>;	# define at the top of the file
+
+# then call the variable:
+
+h3 {
+  color: $variable-name;
+}
+
+# Bootstrap ships with many variables:
+# http://getbootstrap.com/customize/#less-variables
+
+##
+## Layout Links
+
+# Instead of hardcoding links, we define variables and named routes
+
+## Rails Routes:
+
+get 'static_pages/help'			# our original route for help page
+
+get 'help' => 'static_pages#help'	# our new routes for help page
+					# this creates two names routes:
+
+	help_path -> '/help'
+	help_url  -> 'http://www.example.com/help'	# an absolute url
+
+
+<%= link_to "Help", '#' %>		# our original link_to
+
+<%= link_to "Help", help_path %>	# our new link_to
+
+
+##
+## Integration Test
+
+# allows us to automate testing all the links
+
+rails generate integration_test site_layout
+
+# creates the file:
+
+test/integration/site_layout_test.rb
+
+# Our integration test will perform the following:
+# Get the root path (Home page)
+# Verify that the right page template is rendered
+# Check for the correct links to the Home, Help, About, and Contact pages
+
+# update site_layout_test.rb:
+
+require 'test_helper'
+
+class SiteLayoutTest < ActionDispatch::IntegrationTest
+
+  test "layout links" do
+    get root_path
+    assert_template 'static_pages/home'
+    assert_select "a[href=?]", root_path, count: 2
+    assert_select "a[href=?]", help_path
+    assert_select "a[href=?]", about_path
+    assert_select "a[href=?]", contact_path
+  end
+end
+
+# run only the integration test:
+
+bundle exec rake test:integration
+
+# then run all tests:
+
+bundle exec rake test
+
+##
+## User Signup
+
+rails generate controller Users new	# generate Users controller
+					# passing the 'new' argument with it
+
+# this creates a controller, view, test, and route
+
+# update route in config/routes.rb to:
+
+get 'signup' => 'users#new'
+
+# update link_to for signup button in app/views/static_pages/home.html.erb
+
+<%= link_to "Sign up now!", signup_path, class: "btn btn-lg btn-primary" %>
+
+# update view at app/views/users/new.html.erb
+
+##
+## Wrap Up
+
+bundle exec rake test
+git add -A
+git commit -am 'finishing layout'
+git checkout master
+git merge layout
+git push origin master
+git push heroku master
+
+
+
+####			####
+####			####
+####     Chapter 6	####
+####			####
+####			####
+
+## Chapters 6 - 10 cover developing a full authentication system
+
+##
+## Modeling Users
+
+# Active Record is the default library for interacting with database.
+# It insulates the developer from SQL, allowing for pure Ruby to be
+# written where SQL would otherwise.
+
+##
+## Setup
+
+git checkout -b model-users
+
+## Generate a user model
+
+rails generate model User name:string email:string
+
+# this yields the following columns in a 'users' table:
+
+id, name, email, created_at, updated_at
+
+# then migrate up
+
+bundle exec rake db:migrate
+
+bundle exec rake db:rollback	# revert if a mistake was made
+
+# migrations info:
+# http://edgeguides.rubyonrails.org/active_record_migrations.html
+
+## naming convention is that model names are singular and controller
+## names are plural. generating a model yields a table with a plural
+## name.
+
+##
+## View database via sqlite3 CLI
+
+sqlite3 db/development.sqlite3		# open db via sqlite3 cli
+
+sqlite> .tables				# show all tables
+
+sqlite> .schema table_name		# show schema for table
+
+## Alternatively, use http://sqlitebrowser.org/ for a GUI
+
+rails console --sandbox		# sandbox mode reverts all db changes when closed
+
+User.new(name: 'value', email: 'value')		# create user in memory
+
+User.create(key: 'value')			# create save user into db
+
+User.find(1)			# find user of id 1
+
+User.find_by(key: 'value')	# find user by key
+
+User.first			# return first user
+
+User.all			# return all users
+
+my_user = User.find(1)
+my_user.update_attributes(key: 'value, key: 'value)	# update attributes
+my_user.update_attribute(:name, "The Dude')		# update 1 attribute
+
+##
+## Validations
+
+# presence, length, format, uniqueness
+# TDD is great for model validations
+# "Our method will be to start with a valid model object, set one of its
+# attributes to something we want to be invalid, and then test that it
+# in fact is invalid."
+#
+# assert_not @user.valid?
+
+# update test/models/user_test.rb	tests go here
+# update app/models/user.rb		validations go here
+
+bundle exec rake test:models
+bundle exec rake test
+
+# Add index to email column to ensure uniqueness at the db level
+
+rails generate migration add_index_to_users_email	# just creates empty file
+
+# update db/migrate/[timestamp]add_index_to_users_email with:
+
+add_index :users, :email, unique: true
+
+# migrate up
+
+bundle exec rake db:migrate
+
+# at this point tests are red because non unique data in the fixtures
+# empty test/fixtures/users.yml
+
+## Add a secure password
+## Each user is required to input a password with confirmation, then
+## a hashed version of the password is stored in db.
+
+# generate migration to include a password_digest in the db
+# required by has_secure_password
+
+rails generate migration add_password_digest_to_users password_digest:string
+
+bundle exec rake db:migrate
+
+# add bcrypt to Gemfile for password hashing
+
+gem 'bcrypt',	'3.1.7'
+
+bundle install
+
+# update app/models/user.rb
+
+has_secure_password	# this method brings in pw hashing functionality
+
+# update test/models/user_test.rb to include pw for setup
+
+user.authenticate('password_here')	# function to authenticate
+
+##
+## Wrap up
+
+bundle exec rake test
+git add -A
+git commit -am 'finishing user model'
+git checkout master
+git merge model-users
+git push origin master
+git push heroku master
+heroku run rake db:migrate
+
+heroku run console --sandbox	# to test user creation etc on production
+
+
+
+####			####
+####			####
+####     Chapter 7	####
+####			####
+####			####
+
+##
+## Sign up
+##
+## Create new user, Display profile page, integration tests, email validation
+
+git checkout -b sign-up		# branch out
+
+##
+## Add debugging into to app/views/layouts/application.html.erb
+## such that it displays only in dev
+
+<%= debug(params) if Rails.env.development? %>
+
+##
+## Rails Environments:
+## test, development, production
+## development is the default
+
+rails console
+>> Rails.env
+=> "development"
+>> Rails.env.production?
+=> false
+
+rails console test				# open console in test env
+rails server --environment test			# run server in test env
+bundle exec rake db:migrate RAILS_ENV=test	# db:migrate in test
+
+## Add CSS to style debug output
+## update app/assets/stylesheets/custom.css.scss
+
+# SASS mixing allow a group of CSS rules to be packaged up and used
+# for multiple elements
+
+@mixin mixin_name {	# define mixin
+  ..
+  ..
+}
+
+.class_name {
+  ..
+  ..
+  @include mixin_name;	# include mixin styles into a class
+}
+
+## Now we have debug content being printed at the bottom of each page
+## AWESOME!
+## It is a YAML representation of params
+
+# update config/routes.rb to include users resource
+# this adds all the actions needed for a RESTful Users resource:
+# index, show, new, create, edit, update, destroy
+
+resources :users
+
+# create a template for showing user profiles at app/views/users/show.html.erb
+# fill it with:
+
+<%= @user.name %>, <%= @user.email %>
+
+# define an @user variable in the show action in the Users controller
+# app/controllers/users_controller.rb
+
+def show
+  @user = User.find(params[:id])
+end
+
+# the byebug gem allows for interactive debugging at a defined point in the
+# application. add the line 'debugger' at the point in the code and the app
+# will hang there, serving an interactive prompt in the server log
+
+def show
+  @user = User.find(params[:id])
+  debugger
+end
+
+# then you can do things like this:
+
+(byebug) @user.name
+"Example User"
+(byebug) @user.email
+"example@railstutorial.org"
+(byebug) params[:id]
+"1"
+
+# press Ctrl+D to release the prompt
+
+#update app/views/users/show.html.erb
+
+<% provide(:title, @user.name) %>
+<h1>
+  <%= gravatar_for @user %>
+  <%= @user.name %>
+</h1>
+
+# define gravatar_for helper method in app/helpers/users_helper.rb
+
+module UsersHelper
+
+  # Returns the Gravatar for the given user.
+  def gravatar_for(user)
+    gravatar_id = Digest::MD5::hexdigest(user.email.downcase)
+    gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}"
+    image_tag(gravatar_url, alt: user.name, class: "gravatar")
+  end
+end
+
+# update app/assets/stylesheets/custom.css.scss for profile page
+
+# reset the database to clear it out
+
+bundle exec rake db:migrate:reset
+
+# we will use the form_for helper method to create the signup form.
+# form_for helper method takes in an Active Record object and constructs
+# a form using the object’s attributes.
+
+# add @user variable to the 'new' action in app/controllers/users_controller.rb
+# because it will be expected in the form_for call
+
+def new
+  @user = User.new
+end
+
+# update the form in app/views/users/new.html.erb
+
+<% provide(:title, 'Sign up') %>
+<h1>Sign up</h1>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <%= form_for(@user) do |f| %>
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+
+      <%= f.label :email %>
+      <%= f.email_field :email %>
+
+      <%= f.label :password %>
+      <%= f.password_field :password %>
+
+      <%= f.label :password_confirmation, "Confirmation" %>
+      <%= f.password_field :password_confirmation %>
+
+      <%= f.submit "Create my account", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
+# update form style in app/assets/stylesheets/custom.scss.css
+
+# add create method to app/controllers/users_controller.rb
+
+  def create
+    @user = User.new(params[:user])    # Not the final implementation!
+    if @user.save
+      # Handle a successful save.
+    else
+      render 'new'
+    end
+  end
+
+##
+## The inputs in the form are put into a hash 'params' and sent off to the
+## Users Controller.
+
+# if there is an error while creating user, the message is in the
+# errors.full_messages object
+
+# create a shared partial for rendering err messages
+
+mkdir app/views/shared
+vi app/views/shared/_error_messages.html.erb
+
+# create an integration test for the signup form
+
+rails generate integration_test users_signup
+
+bundle exec rake test
+
+##
+## Successful signups:
+## try to save the user, if the save succeeds redirect to profile, else
+## render the signup form again
+
+# git up
+
+git add -A
+git commit -m 'finish user signup'
+git checkout master
+git merge sign-up
+git branch -d sign-up
+
+##
+## SSL in Production
+## uncomment the following line in config/environments/production.rb
+
+config.force_ssl = true
+
+## this will enable SSL site-wide
+
+## Heroku will automatically allow the app to piggyback on it's own SSL cert
+## as long as SSL is enabled on the app. To setup SSL on Heroku with a custom
+## domain, refer here: https://devcenter.heroku.com/articles/ssl-endpoint
+
+## Production Web Server
+## the default web server on rails is WEBrick, which is not production ready.
+## update the web server to puma by adding the gem in the Gemfile
+## https://devcenter.heroku.com/articles/ruby-default-web-server
+
+bundle install	# even though puma is in production,
+		# still necessary to update Gemfile.lock
+
+vi config/puma.rb	# https://devcenter.heroku.com/articles/deploying-rails-applications-with-the-puma-web-server
+
+vi Procfile	# create Procfile in root dir and fill it
+
+bundle exec rake test
+git add -A
+git commit -m 'Use SSL and Puma webserver in prod'
+git push origin master
+git push heroku master
+heroku run rake db:migrate
+
+##
+## Chapter 7 was a mother fucker, and it literally took me over a week to
+## complete it, largely in part because I lacked focus the entire time. But,
+## nonetheless, there is a lot of content covered ant it should be reviewed.
+
+
+
+####			####
+####			####
+####     Chapter 8	####
+####			####
+####			####
+
+##
+## Log in, log out
+
+# HTML is stateless, a 'session' is required to remember a logged in user
+# from page to page. 'Cookies' are commonly used to create sessions, they are
+# strings of text stored on the client's browser. The string is used to retrieve
+# the logged in user from the db.
+
+git checkout login-logout
+
+# Logging in is handled by sending a POST request to the 'create' action
+# Logging out is handled by sending a DELETE request to the 'destroy' action
+
+rails g controller Sessions new		# generate a new Sessions controller
+
+# update config/routes.rb with login/out routes
+
+  get    'login'   => 'sessions#new'
+  post   'login'   => 'sessions#create'
+  delete 'logout'  => 'sessions#destroy'
+
+# display the routes and actions supported by the application:
+
+bundle exec rake routes		# this makes no changes, just informational
+
+# update app/views/sessions/new.html.erb
+# this is where the login form lives
+
+# submitting this form will result in a params hash where
+# params[:session][:email] and params[:session][:password]
+# correspond to the email and password fields.
+
+# update app/controllers/sessions_controller.rb
+# this is where we look for a user, create a session, destroy a session,
+# and do error checking on the form (not sure on the err checking yet)
+
+rails g integration_test users_login
+
+# update test/integrationusers_login_test.rb
+
+bundle exec rake test TEST=test/integration/users_login_test.rb # run only 1 test
+
+# update app/controllers/application_controller.rb
+
+# update app/helpers/sessions_helper.rb
+
+# update app/controllers/sessions_controller.rb
+
+# update app/views/layouts/_header.html.erb
+# to change menu items if logged in
+
+# include bootstrap js to activate dropdown menu
+# app/assets/javascripts/application.js
+
+## Create tests to test the following:
+##
+# Visit the login path.
+# Post valid information to the sessions path.
+# Verify that the login link disappears.
+# Verify that a logout link appears
+# Verify that a profile link appears.
+
+## Fixtures
+##
+# a way of organizing data to be loaded into the test database
+
+# update app/models/user.rb
+# def User.digest(string)
+
+# update test/fixtures/users.yml
+
+# run a specific test within a test file by passing an option TESTOPTS
+bundle exec rake test TEST=test/integration/users_login_test.rb \
+>                     TESTOPTS="--name test_login_with_valid_information"
+
+# add log_in call to signup function for auto login upon signup
+# app/controllers/users_controller.rb
+
+# put logout methods in app/helpers/sessions_helpber.rb
+# call these methods from app/controllers/sessions_controller.rb in def destroy
+
+##
+## Create a persistent session, a 'remember-me' session, through use of cookies
+
+# Create a random string of digits for use as a remember token.
+# Place the token in the browser cookies with an expiration date far in the future.
+# Save the hash digest of the token to the database.
+# Place an encrypted version of the user’s id in the browser cookies.
+# When presented with a cookie containing a persistent user id, find the user in
+#   the database using the given id, and verify that the remember token cookie
+#   matches the associated hash digest from the database.
+
+##
+## Add remember_digest to the user model
+
+# generate a migration
+rails generate migration add_remember_digest_to_users remember_digest:string
+
+# migration created at db/migrate/[timestamp]_add_remember_digest_to_users.rb
+# the default migration is fine, no need to put an index on remember_digest
+
+# run the migration
+bundle exec rake db:migrate
+
+# add the random token creation to app/models/user.rb
+
+# Login with remembering
+## Doesn't seem to work...
+## I went back and checked that I did section 8.4 correctly and is seems i did..
+
+# for some reason inside tests the cookies method doesn’t work with symbols as keys
+
+# raise an exception in the suspected untested block of code:
+# if the code isn’t covered, the tests will still pass; if it is covered,
+# the resulting error will identify the relevant test
+
+# WRAP UP
+
+$ bundle exec rake test
+$ git add -A
+$ git commit -m "Finish log in/log out"
+$ git checkout master
+$ git merge log-in-log-out
+
+$ bundle exec rake test
+$ git push
+$ git push heroku
+$ heroku run rake db:migrate
+
+
+# if this is a production site with lots of traffic, turn on maintenance mode first
+# because the db:migrate will break the site temporarily
+
+$ heroku maintenance:on
+$ git push heroku
+$ heroku run rake db:migrate
+$ heroku maintenance:off
+
+# https://devcenter.heroku.com/articles/error-pages
+
+
+
+####			####
+####			####
+####     Chapter 9	####
+####			####
+####			####
+
+##
+## Updating, showing, and deleting Users
+
+##
+## Updating Users
+
+git checkout master
+git checkout -b updating-users
+
+# define edit and update method in app/controllers/users_controller.rb
+
+# create edit view at app/views/users/edit.html.erb
+
+# create integration test for fail on edit page
+
+rails g integration_test users_edit
+
+# successful edits with TDD
+
+##
+## Authorization
+
+# send unauthenticated users to login page when trying to access unauthorized
+# page.
+
+# send authenticated users to root page when trying to access unauthorized page.
+
+test/controllers/users_controller_test.rb
+
+# Friendly Forwarding
+
+# Display all users
+
+@user	# is an instance variable bc it has @
+
+db/seed.rb	# where to create dummy users
+
+# Pagination
+
+# Deleting Users
+
+# add admin column to users table
+rails generate migration add_admin_to_users admin:boolean
+
+bundle exec rake db:migrate
+
+# Wrap up
+
+$ git add -A
+$ git commit -m "Finish user edit, update, index, and destroy actions"
+$ git checkout master
+$ git merge updating-users
+$ git push
+
+$ bundle exec rake test
+$ git push heroku
+$ heroku pg:reset DATABASE	# reset production database
+$ heroku run rake db:migrate
+$ heroku run rake db:seed
+$ heroku restart
+
+
+
+####			####
+####			####
+####     Chapter 10	####
+####			####
+####			####
+
+##
+## Account Activation and Password Reset
+
+# Activation Pseudocode
+
+1. Start users in an “unactivated” state.
+2. When a user signs up, generate an activation token and corresponding activation digest.
+3. Save the activation digest to the database, and then send an email to the user with a link containing the activation token and user’s email address.2
+4. When the user clicks the link, find the user by email address, and then authenticate the token by comparing with the activation digest.
+5. If the user is authenticated, change the status from “unactivated” to “activated”.
+
+$ rails generate controller AccountActivations
+
+$ rails generate migration add_activation_to_users \
+> activation_digest:string activated:boolean activated_at:datetime
+
+$ bundle exec rake db:migrate
+
+$ rails generate mailer UserMailer account_activation password_reset
+
+# Ruby Metaprogramming
+# uses the powerful send method
+
+# Password Reset Pseudocode
+
+1. When a user requests a password reset, find the user by the submitted email address.
+2. If the email address exists in the database, generate a reset token and corresponding reset digest.
+3. Save the reset digest to the database, and then send an email to the user with a link containing the reset token and user’s email address.
+4. When the user clicks the link, find the user by email address, and then authenticate the token by comparing to the reset digest.
+5. If authenticated, present the user with the form for changing the password.
+
+$ rails generate controller PasswordResets new edit --no-test-framework
+
+$ rails generate migration add_reset_to_users reset_digest:string \
+> reset_sent_at:datetime
+
+$ bundle exec rake db:migrate
+
+$ rails generate integration_test password_resets
+
+# Email in Production
+# SendGrid is a heroku add-on that allows for 200 emails a day free of charge
+
+$ heroku addons:add sendgrid:starter
+
+# fill out SMTP settings for prod env at config/environments/production.rb
+
+# view env variables in heroku for sendgrid
+$ heroku config:get SENDGRID_USERNAME
+$ heroku config:get SENDGRID_PASSWORD
+
+# view sendgrid docs
+heroku addons:docs sendgrid
+
+# Wrap Up
+
+$ bundle exec rake test
+$ git add -A
+$ git commit -m "Add password resets & email configuration"
+$ git checkout master
+$ git merge account-activation-password-reset
+
+$ bundle exec rake test
+$ git push
+$ git push heroku
+$ heroku run rake db:migrate
+
+##
+## at this point the application features complete user management
+## features, and is a great boilerplate for new applications with
+## no additional functionality.
+
+
+
+
+####			####
+####			####
+####     Chapter 11	####
+####			####
+####			####
+
+##
+## User Microposts
+
+$ git checkout master
+$ git checkout -b user-microposts
+
+$ rails generate model Micropost content:text user:references
+
+# in the migration file:
+add_index :microposts, [:user_id, :created_at]
+# creates a multiple key index
+
+$ bundle exec rake db:migrate
+
+## User / Micropost Associations
+
+belongs_to 		# one to one (each micropost belongs to one user)
+has_many		# one to many (each user can have many microposts)
+
+# Default Scope
+# in this case determines the default way posts are retrieved from db:
+# specifically, from newest to oldest
+
+# Showing Microposts
+
+$ rails generate controller Microposts
+
+# add microposts to db/seed.db
+
+$ bundle exec rake db:migrate:reset
+$ bundle exec rake db:seed
+
+$ rails generate integration_test users_profile
+
+# Manipulating microposts
+
+# Displaying a different homepage if logged in
+
+$ rails generate integration_test microposts_interface
+
+$ rails generate uploader Picture	# depends on CarrierWave gem
+$ rails generate migration add_picture_to_microposts picture:string
+$ bundle exec rake db:migrate
+
+# MIME types for accepted internet media
+
+# Get ImageMagick for dev machine, to manipulate images
+$ sudo port install ImageMagick
+
+# Image upload in Production
+# use fog gem to store images in a cloud storage service instead of locally
+# we'll use Amazon S3, need to make an account
+
+**							    **
+** Amazon S3 reds stored locally only, not available in git **
+**							    **
+
+# put S3 creds (above) into the config/initializers/carrier_wave.rb file
+# set the same creds on heroku:
+
+$ heroku config:set S3_ACCESS_KEY=<access key>
+$ heroku config:set S3_SECRET_KEY=<secret key>
+$ heroku config:set S3_BUCKET=<bucket name>
+
+# start wrap up
+
+$ bundle exec rake test
+$ git add -A
+$ git commit -m "Add user microposts"
+$ git checkout master
+$ git merge user-microposts
+$ git push
+
+$ git push heroku
+$ heroku pg:reset DATABASE
+$ heroku run rake db:migrate
+$ heroku run rake db:seed
+
+
+
+
+####			####
+####			####
+####     Chapter 12	####
+####			####
+####			####
+
+##
+## Following Users
+
+$ git checkout master
+$ git checkout -b following-users
+
+# We'll create a single Relationships table for both active (following)
+# and passive (followed by) relationships
+
+$ rails generate model Relationship follower_id:integer followed_id:integer
+
+# Well add indexes on the follower and followed ids, as well as relationships
+# btw them such that a user cannot follow the same user twice
+
+    add_index :relationships, :follower_id
+    add_index :relationships, :followed_id
+    add_index :relationships, [:follower_id, :followed_id], unique: true
+
+# Then migrate
+
+$ bundle exec rake db:migrate
+
+# build controllers and models, then tests, then test data, then seed data,
+# the ui, then functionality
+
+$ rails generate integration_test following
+
+$ rails generate controller Relationships
+
+# pattern to handle Ajax requests in controller
+# only the .html or .js is executed, not both
+
+respond_to do |format|
+  format.html { redirect_to user }
+  format.js
+end
+
+$ bundle exec rake test
+$ git add -A
+$ git commit -m "Add user following"
+$ git checkout master
+$ git merge following-users
+
+$ git push
+$ git push heroku
+$ heroku pg:reset DATABASE
+$ heroku run rake db:migrate
+$ heroku run rake db:seed
+
+# ALL DONE!
+
+# More resources listed here: https://www.railstutorial.org/book/following_users#sec-guide_to_further_resources
